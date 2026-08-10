@@ -1,0 +1,4 @@
+[data-theme="pink"]   { --tdp-primary:#FF6FA5; --tdp-primary-soft:#FFC2DA; --tdp-primary-ink:#E2467E; --tdp-bg:#FFF6FA; --tdp-sidebar:#FFF0F6; }
+[data-theme="purple"] { --tdp-primary:#A97BE6; --tdp-primary-soft:#DCC8F7; --tdp-primary-ink:#7B4FC0; --tdp-bg:#F8F4FF; --tdp-sidebar:#F2EAFF; }
+[data-theme="matcha"] { --tdp-primary:#7CC79B; --tdp-primary-soft:#CDEBD8; --tdp-primary-ink:#4E9A70; --tdp-bg:#F4FBF6; --tdp-sidebar:#EAF7EE; }
+[data-theme="blue"]   { --tdp-primary:#6FB6EE; --tdp-primary-soft:#C6E4FA; --tdp-primary-ink:#3D8DC9; --tdp-bg:#F4FAFF; --tdp-sidebar:#E9F5FF; }
