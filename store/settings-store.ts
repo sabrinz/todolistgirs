@@ -1,42 +1,48 @@
-"use client"
-
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-export type ThemeId = "pink" | "purple" | "matcha" | "blue"
+export type ThemeId =
+  | "pink" | "purple" | "matcha" | "blue"
+  | "strawberry" | "lavender" | "chocolate" | "minimalist"
 
-type Store = {
+export const KUNCI_DATA = [
+  "rihlah-hafalan", "rihlah-amalan", "rihlah-muqorror", "rihlah-mufrodat",
+  "rihlah-jadwal", "rihlah-journal", "rihlah-notes", "rihlah-mood",
+]
+
+type State = {
   name: string
+  kota: string
   theme: ThemeId
-  reminder: boolean
-  sound: boolean
   animation: boolean
-  setName: (name: string) => void
-  setTheme: (theme: ThemeId) => void
-  toggle: (key: "reminder" | "sound" | "animation") => void
+  reminder: boolean
+  setName: (v: string) => void
+  setKota: (v: string) => void
+  setTheme: (v: ThemeId) => void
+  toggle: (k: "animation" | "reminder") => void
   resetAll: () => void
 }
 
-export const useSettingsStore = create<Store>()(
+export const useSettingsStore = create<State>()(
   persist(
     (set) => ({
-      name: "Sabrina",
+      name: "Ukhti",
+      kota: "Cairo",
       theme: "pink",
-      reminder: true,
-      sound: true,
       animation: true,
+      reminder: true,
 
-      setName: (name) => set({ name }),
-      setTheme: (theme) => set({ theme }),
-      toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<Store>),
+      setName: (v) => set({ name: v.trim() || "Ukhti" }),
+      setKota: (v) => set({ kota: v.trim() || "Cairo" }),
+      setTheme: (v) => set({ theme: v }),
+      toggle: (k) => set((st) => ({ [k]: !st[k] }) as Partial<State>),
 
       resetAll: () => {
-        localStorage.removeItem("tdp-store")
-        localStorage.removeItem("tdp-notes")
-        localStorage.removeItem("tdp-settings")
-        location.reload()
+        if (typeof window === "undefined") return
+        for (const k of KUNCI_DATA) window.localStorage.removeItem(k)
+        window.location.reload()
       },
     }),
-    { name: "tdp-settings" }
+    { name: "rihlah-settings" }
   )
 )

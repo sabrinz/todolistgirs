@@ -1,11 +1,17 @@
-export const NAV = [
+export type NavItem = { label: string; href: string; icon: string }
+
+export const NAV: NavItem[] = [
   { label: "Beranda", href: "/beranda", icon: "home" },
-  { label: "Today", href: "/today", icon: "sun" },
-  { label: "Calendar", href: "/kalender", icon: "calendar" },
-  { label: "Tugas Saya", href: "/tugas", icon: "list" },
+  { label: "Hafalan", href: "/hafalan", icon: "book" },
+  { label: "Murojaah", href: "/murojaah", icon: "repeat" },
+  { label: "Muqorror", href: "/muqorror", icon: "library" },
+  { label: "Mufrodat", href: "/mufrodat", icon: "languages" },
+  { label: "Amalan", href: "/amalan", icon: "moon" },
+  { label: "Jadwal", href: "/jadwal", icon: "clock" },
+  { label: "Kalender", href: "/kalender", icon: "calendar" },
+  { label: "Journal", href: "/journal", icon: "feather" },
   { label: "Catatan", href: "/catatan", icon: "notebook" },
   { label: "Mood", href: "/mood", icon: "smile" },
-  { label: "Statistik", href: "/statistik", icon: "chart" },
-  { label: "Reward", href: "/reward", icon: "gift" },
+  { label: "Progres Diri", href: "/statistik", icon: "chart" },
   { label: "Pengaturan", href: "/pengaturan", icon: "settings" },
-] as const
+]

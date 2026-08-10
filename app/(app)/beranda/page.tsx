@@ -1,415 +1,248 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
-import confetti from "canvas-confetti"
-import {
-  BatteryLow, Check, ChevronRight, Flame, Frown, Laugh, ListChecks,
-  Meh, Plus, Quote, Smile, Sparkles, Trash2, TrendingUp, Trophy,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useTaskStore, todayKey, type Category, type MoodValue } from "@/store/task-store"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { BookOpen, Check, ChevronRight, Clock, Flame, Library, Moon } from "lucide-react"
+import { BunnyMascot } from "@/components/decor/mascot"
 import { useSettingsStore } from "@/store/settings-store"
-
-const CATEGORIES: { name: Category; color: string }[] = [
-  { name: "Sekolah", color: "var(--tdp-sky)" },
-  { name: "Belajar", color: "var(--tdp-lemon)" },
-  { name: "Kesehatan", color: "var(--tdp-mint)" },
-  { name: "Self Care", color: "var(--tdp-lilac)" },
-  { name: "Hobi", color: "var(--tdp-primary-soft)" },
-]
-
-const MOODS: { value: MoodValue; label: string; Icon: typeof Smile }[] = [
-  { value: "bahagia", label: "Bahagia", Icon: Laugh },
-  { value: "senang", label: "Senang", Icon: Smile },
-  { value: "biasa", label: "Biasa", Icon: Meh },
-  { value: "sedih", label: "Sedih", Icon: Frown },
-  { value: "lelah", label: "Lelah", Icon: BatteryLow },
-]
-
-const QUOTES = [
-  "You don't have to be perfect to be amazing.",
-  "Sedikit demi sedikit tetap lebih baik daripada tidak sama sekali.",
-  "Kamu tidak harus cepat, cukup jangan berhenti.",
-  "Hari ini cukup jadi versi kecil dirimu yang lebih baik.",
-]
+import {
+  ayatPadaTanggal, kunciHari, persenHafalan, rentetanHafalan,
+  totalAyatHafal, useHafalanStore,
+} from "@/store/hafalan-store"
+import { persenAmalan, rentetanAmalan, useAmalanStore } from "@/store/amalan-store"
+import { halamanPerHari, persenKitab, sisaHari, useMuqorrorStore } from "@/store/muqorror-store"
+import { ambilWaktuSholat, sholatBerikutnya, type WaktuSholat } from "@/store/jadwal-store"
 
 const card = {
   background: "var(--tdp-card)",
   borderRadius: "var(--tdp-radius)",
-  boxShadow: "var(--tdp-shadow)",
+  boxShadow: "var(--tdp-shadow-soft)",
 }
 
 export default function BerandaPage() {
   const [mounted, setMounted] = useState(false)
-  const [filter, setFilter] = useState<"Semua" | Category>("Semua")
-  const [open, setOpen] = useState(false)
-  const [title, setTitle] = useState("")
-  const [category, setCategory] = useState<Category>("Sekolah")
-  const [time, setTime] = useState("")
+  useEffect(() => setMounted(true), [])
 
-  const { tasks, points, streak, moodByDate, addTask, toggleTask, removeTask, setMood, touchStreak } =
-    useTaskStore()
-    const { name, animation } = useSettingsStore()
+  const { name, kota } = useSettingsStore()
+  const { setoran, targetHarian } = useHafalanStore()
+  const { amalan, log, toggle } = useAmalanStore()
+  const { kitab } = useMuqorrorStore()
+
+  const [sholat, setSholat] = useState<WaktuSholat | null>(null)
+  const [hijriah, setHijriah] = useState<string | null>(null)
 
   useEffect(() => {
-    setMounted(true)
-    touchStreak()
-  }, [touchStreak])
+    ambilWaktuSholat(kota).then((r) => {
+      if (!r) return
+      setSholat(r.waktu)
+      setHijriah(r.hijriah)
+    })
+  }, [kota])
 
-  const done = tasks.filter((t) => t.done).length
-  const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0
-  const mood = moodByDate[todayKey()]
+  const hari = kunciHari()
 
-  const visible = useMemo(
-    () => (filter === "Semua" ? tasks : tasks.filter((t) => t.category === filter)),
-    [tasks, filter]
+  const ayatHariIni = useMemo(() => ayatPadaTanggal(setoran, hari), [setoran, hari])
+  const persenTarget = Math.min(100, Math.round((ayatHariIni / Math.max(1, targetHarian)) * 100))
+  const amalanHariIni = log[hari] ?? []
+  const belumDicentang = amalan.filter((a) => !amalanHariIni.includes(a.id))
+
+  const kitabTerdekat = useMemo(
+    () =>
+      kitab
+        .filter((k) => k.tanggalUjian && (sisaHari(k.tanggalUjian) ?? -1) >= 0)
+        .sort((a, b) => (sisaHari(a.tanggalUjian) ?? 0) - (sisaHari(b.tanggalUjian) ?? 0))[0],
+    [kitab]
   )
 
-  const quote = useMemo(() => QUOTES[new Date().getDate() % QUOTES.length], [])
-
-  const handleToggle = (id: string) => {
-    const completed = toggleTask(id)
-    if (completed && animation) {
-      confetti({
-        particleCount: 70,
-        spread: 65,
-        origin: { y: 0.7 },
-        colors: ["#FF6FA5", "#FFC2DA", "#C9A7F5", "#FFE08A"],
-      })
-    }
-  }
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!title.trim()) return
-    addTask({ title, category, time: time || undefined })
-    setTitle("")
-    setTime("")
-    setOpen(false)
-  }
+  const berikutnya = sholat ? sholatBerikutnya(sholat) : null
+  const jam = new Date().getHours()
+  const sapaan = jam < 11 ? "Sabahal khair" : jam < 15 ? "Selamat siang" : jam < 18 ? "Masaal khair" : "Selamat malam"
 
   if (!mounted) return null
 
-  const summary = [
-    { label: "Total Tugas", value: tasks.length, sub: "tugas kamu", Icon: ListChecks },
-    { label: "Selesai", value: done, sub: "tugas", Icon: Check },
-    { label: "Progress", value: `${progress}%`, sub: progress >= 70 ? "Hampir selesai!" : "Ayo semangat!", Icon: TrendingUp },
-    { label: "Reward Points", value: points, sub: `${done * 10} dari tugas selesai`, Icon: Trophy },
-  ]
-
   return (
-    <div className="space-y-5">
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
+    <div className="mx-auto flex max-w-5xl flex-col gap-4">
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 md:flex-row md:items-center"
+        className="relative flex items-center gap-4 overflow-hidden p-5"
+        style={{ background: "var(--tdp-gradient)", borderRadius: "var(--tdp-radius)" }}
       >
-        <div className="flex-1">
-          <h1
-            className="text-3xl md:text-4xl"
-            style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-          >
-            Haii, {name}!
+        <div className="absolute -right-10 -top-10 size-40 rounded-full opacity-20" style={{ background: "#fff" }} />
+        <div className="absolute -bottom-14 right-24 size-32 rounded-full opacity-15" style={{ background: "#fff" }} />
+
+        <div className="relative min-w-0 flex-1">
+          <p className="text-sm text-white/85">{sapaan},</p>
+          <h1 className="truncate text-2xl text-white md:text-3xl" style={{ fontFamily: "var(--font-baloo)" }}>
+            {name}
           </h1>
-          <p className="mt-1 flex items-center gap-1.5 text-sm" style={{ color: "var(--tdp-muted)" }}>
-            <Sparkles className="size-4" />
-            Semangat hari ini ya! Kamu hebat!
+          <p className="mt-1 text-xs text-white/80">
+            {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
+            {hijriah ? ` · ${hijriah}` : ""}
           </p>
+
+          {berikutnya && (
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/25 px-3 py-1.5 text-xs text-white backdrop-blur">
+              <Clock className="size-3.5" />
+              {berikutnya.nama} {berikutnya.jam}
+              {berikutnya.sisaMenit !== null && (
+                <span className="opacity-80">
+                  · {Math.floor(berikutnya.sisaMenit / 60)}j {berikutnya.sisaMenit % 60}m lagi
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        <motion.div whileHover={{ scale: 1.03 }} className="flex items-center gap-3 px-5 py-3" style={card}>
-          <motion.span
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ repeat: Infinity, duration: 2.2 }}
-            className="flex size-10 items-center justify-center rounded-full"
-            style={{ background: "var(--tdp-primary-soft)" }}
-          >
-            <Flame className="size-5" style={{ color: "var(--tdp-primary-ink)" }} />
-          </motion.span>
-          <div>
-            <p className="text-xs" style={{ color: "var(--tdp-muted)" }}>Streak</p>
-            <p className="text-lg leading-tight" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
-              {streak} Hari
-            </p>
-          </div>
-        </motion.div>
-      </motion.div>
+        <div className="relative hidden shrink-0 sm:block">
+          <BunnyMascot size={120} />
+        </div>
+      </motion.section>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {summary.map((s, i) => (
+      {sholat && (
+        <section className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+          {([
+            ["Subuh", sholat.Fajr], ["Terbit", sholat.Sunrise], ["Dzuhur", sholat.Dhuhr],
+            ["Ashar", sholat.Asr], ["Maghrib", sholat.Maghrib], ["Isya", sholat.Isha],
+          ] as Array<[string, string]>).map(([nama, waktu]) => {
+            const aktif = berikutnya?.nama === nama
+            return (
+              <div
+                key={nama}
+                className="p-2.5 text-center"
+                style={{
+                  ...card,
+                  background: aktif ? "var(--tdp-primary)" : "var(--tdp-card)",
+                  borderRadius: "var(--tdp-radius-sm)",
+                }}
+              >
+                <p className="text-[10px]" style={{ color: aktif ? "rgba(255,255,255,.8)" : "var(--tdp-muted)" }}>
+                  {nama}
+                </p>
+                <p className="text-sm" style={{ fontFamily: "var(--font-baloo)", color: aktif ? "#fff" : "var(--tdp-text)" }}>
+                  {waktu}
+                </p>
+              </div>
+            )
+          })}
+        </section>
+      )}
+
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          { label: "Ayat dihafal", nilai: totalAyatHafal(setoran), sub: `${persenHafalan(setoran)}% Al-Qur'an`, Icon: BookOpen, warna: "var(--tdp-sky-soft)" },
+          { label: "Hafalan hari ini", nilai: `${ayatHariIni}/${targetHarian}`, sub: `${persenTarget}% target`, Icon: Check, warna: "var(--tdp-mint-soft)" },
+          { label: "Amalan hari ini", nilai: `${amalanHariIni.length}/${amalan.length}`, sub: `${persenAmalan(log, hari, amalan.length)}% selesai`, Icon: Moon, warna: "var(--tdp-lilac-soft)" },
+          { label: "Rentetan hari", nilai: Math.max(rentetanHafalan(setoran), rentetanAmalan(log)), sub: "hari berturut-turut", Icon: Flame, warna: "var(--tdp-lemon-soft)" },
+        ].map((s, i) => (
           <motion.div
             key={s.label}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.07 }}
-            whileHover={{ y: -4 }}
+            transition={{ delay: i * 0.06 }}
             className="p-4"
-            style={card}
+            style={{ ...card, background: s.warna }}
           >
-            <div className="flex items-start justify-between">
-              <p className="text-xs" style={{ color: "var(--tdp-muted)" }}>{s.label}</p>
-              <span className="flex size-8 items-center justify-center rounded-full" style={{ background: "var(--tdp-bg)" }}>
-                <s.Icon className="size-4" style={{ color: "var(--tdp-primary)" }} />
-              </span>
-            </div>
-
-            <motion.p
-              key={String(s.value)}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mt-2 text-3xl leading-none"
-              style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-            >
-              {s.value}
-            </motion.p>
-            <p className="mt-1 text-[11px]" style={{ color: "var(--tdp-muted)" }}>{s.sub}</p>
-
-            {s.label === "Progress" && (
-              <div className="mt-3 h-2 w-full overflow-hidden rounded-full" style={{ background: "var(--tdp-primary-soft)" }}>
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: "var(--tdp-primary)" }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ type: "spring", stiffness: 60 }}
-                />
-              </div>
-            )}
+            <s.Icon className="size-5" style={{ color: "var(--tdp-primary-ink)" }} />
+            <p className="mt-2 text-2xl" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-text)" }}>
+              {s.nilai}
+            </p>
+            <p className="text-xs" style={{ color: "var(--tdp-text)" }}>{s.label}</p>
+            <p className="text-[10px]" style={{ color: "var(--tdp-muted)" }}>{s.sub}</p>
           </motion.div>
         ))}
-      </div>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <motion.section
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="p-5 lg:col-span-2"
-          style={card}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-lg" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
-              Tugas Hari Ini
+      <div className="grid gap-3 lg:grid-cols-2">
+        <section className="p-4" style={card}>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
+              Amalan belum dicentang
+            </h2>
+            <Link href="/amalan" className="flex items-center text-xs" style={{ color: "var(--tdp-muted)" }}>
+              Semua <ChevronRight className="size-3.5" />
+            </Link>
+          </div>
+
+          {belumDicentang.length === 0 ? (
+            <p className="py-6 text-center text-sm" style={{ color: "var(--tdp-muted)" }}>
+              Semua amalan hari ini sudah dicentang. Barakallahu fiik.
             </p>
-            <motion.button
-              whileTap={{ scale: 0.94 }}
-              onClick={() => setOpen((v) => !v)}
-              className="flex items-center gap-1 rounded-full px-4 py-2 text-xs text-white"
-              style={{ background: "var(--tdp-primary)", boxShadow: "var(--tdp-shadow)" }}
-            >
-              <motion.span animate={{ rotate: open ? 45 : 0 }}>
-                <Plus className="size-4" />
-              </motion.span>
-              {open ? "Tutup" : "Tambah Tugas"}
-            </motion.button>
-          </div>
-
-          <AnimatePresence>
-            {open && (
-              <motion.form
-                onSubmit={submit}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 space-y-3 rounded-2xl p-4" style={{ background: "var(--tdp-bg)" }}>
-                  <input
-                    autoFocus
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Contoh: Belajar 1 jam"
-                    className="w-full rounded-xl px-3 py-2 text-sm outline-none"
-                    style={{ background: "var(--tdp-card)", border: "1px solid var(--tdp-border)", color: "var(--tdp-text)" }}
-                  />
-
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map((c) => (
-                      <button
-                        type="button"
-                        key={c.name}
-                        onClick={() => setCategory(c.name)}
-                        className="rounded-full px-3 py-1.5 text-[11px] transition-transform hover:scale-105"
-                        style={{
-                          background: category === c.name ? c.color : "var(--tdp-card)",
-                          color: "var(--tdp-text)",
-                          border: "1px solid var(--tdp-border)",
-                        }}
-                      >
-                        {c.name}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="time"
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="rounded-xl px-3 py-2 text-sm outline-none"
-                      style={{ background: "var(--tdp-card)", border: "1px solid var(--tdp-border)", color: "var(--tdp-text)" }}
-                    />
-                    <button
-                      type="submit"
-                      className="ml-auto rounded-full px-5 py-2 text-xs text-white"
-                      style={{ background: "var(--tdp-primary)" }}
-                    >
-                      Simpan Tugas
-                    </button>
-                  </div>
-                </div>
-              </motion.form>
-            )}
-          </AnimatePresence>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {(["Semua", ...CATEGORIES.map((c) => c.name)] as const).map((f) => {
-              const active = filter === f
-              const count = f === "Semua" ? tasks.length : tasks.filter((t) => t.category === f).length
-              return (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className="rounded-full px-3 py-1.5 text-xs transition-colors"
-                  style={active
-                    ? { background: "var(--tdp-primary)", color: "#fff" }
-                    : { background: "var(--tdp-bg)", color: "var(--tdp-muted)" }}
-                >
-                  {f} <span className="opacity-70">{count}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          <ul className="mt-4 space-y-2">
-            <AnimatePresence initial={false}>
-              {visible.map((t) => (
-                <motion.li
-                  key={t.id}
-                  layout
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20, height: 0 }}
-                  className="group flex items-center gap-3 rounded-2xl px-3 py-3"
-                  style={{ background: "var(--tdp-bg)" }}
-                >
-                  <motion.button
-                    whileTap={{ scale: 0.8 }}
-                    onClick={() => handleToggle(t.id)}
-                    aria-label="Tandai selesai"
-                    className="flex size-6 shrink-0 items-center justify-center rounded-full border-2"
-                    style={{
-                      borderColor: "var(--tdp-primary)",
-                      background: t.done ? "var(--tdp-primary)" : "transparent",
-                    }}
-                  >
-                    <AnimatePresence>
-                      {t.done && (
-                        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                          <Check className="size-4 text-white" />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-
-                  <span
-                    className={cn("min-w-0 flex-1 truncate text-sm", t.done && "line-through opacity-50")}
-                    style={{ color: "var(--tdp-text)" }}
-                  >
-                    {t.title}
-                  </span>
-
-                  <span
-                    className="hidden shrink-0 rounded-full px-2.5 py-1 text-[11px] sm:block"
-                    style={{
-                      background: CATEGORIES.find((c) => c.name === t.category)?.color,
-                      color: "var(--tdp-text)",
-                    }}
-                  >
-                    {t.category}
-                  </span>
-
-                  <span className="hidden w-12 shrink-0 text-right text-[11px] md:block" style={{ color: "var(--tdp-muted)" }}>
-                    {t.time}
-                  </span>
-
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {belumDicentang.slice(0, 5).map((a) => (
+                <li key={a.id}>
                   <button
-                    onClick={() => removeTask(t.id)}
-                    aria-label="Hapus"
-                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                    onClick={() => toggle(hari, a.id)}
+                    className="flex w-full items-center gap-3 p-3 text-left text-sm transition-transform active:scale-[0.98]"
+                    style={{ background: "var(--tdp-bg)", borderRadius: "var(--tdp-radius-sm)", color: "var(--tdp-text)" }}
                   >
-                    <Trash2 className="size-4" style={{ color: "var(--tdp-muted)" }} />
+                    <span
+                      className="size-5 shrink-0 rounded-full"
+                      style={{ border: "2px solid var(--tdp-primary-soft)" }}
+                    />
+                    {a.nama}
                   </button>
-
-                  <ChevronRight className="size-4 shrink-0" style={{ color: "var(--tdp-muted)" }} />
-                </motion.li>
+                </li>
               ))}
-            </AnimatePresence>
-          </ul>
-
-          {visible.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center gap-2 py-10 text-center"
-            >
-              <span className="flex size-14 items-center justify-center rounded-full" style={{ background: "var(--tdp-bg)" }}>
-                <ListChecks className="size-6" style={{ color: "var(--tdp-primary)" }} />
-              </span>
-              <p className="text-sm" style={{ color: "var(--tdp-muted)" }}>
-                Belum ada tugas. Yuk tambah satu!
-              </p>
-            </motion.div>
+            </ul>
           )}
-        </motion.section>
+        </section>
 
-        <div className="space-y-4">
-          <motion.section initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} className="p-5" style={card}>
-            <p className="text-lg" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
-              Mood Hari Ini
+        <section className="p-4" style={card}>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
+              Muqorror terdekat
+            </h2>
+            <Link href="/muqorror" className="flex items-center text-xs" style={{ color: "var(--tdp-muted)" }}>
+              Semua <ChevronRight className="size-3.5" />
+            </Link>
+          </div>
+
+          {!kitabTerdekat ? (
+            <p className="py-6 text-center text-sm" style={{ color: "var(--tdp-muted)" }}>
+              Belum ada kitab dengan tanggal imtihan.
             </p>
-            <p className="text-xs" style={{ color: "var(--tdp-muted)" }}>Bagaimana perasaanmu?</p>
+          ) : (
+            <div>
+              <div className="flex items-start gap-3">
+                <span
+                  className="flex size-10 shrink-0 items-center justify-center rounded-2xl"
+                  style={{ background: "var(--tdp-lilac-soft)" }}
+                >
+                  <Library className="size-5" style={{ color: "var(--tdp-primary-ink)" }} />
+                </span>
 
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              {MOODS.map((m) => {
-                const active = mood === m.value
-                return (
-                  <motion.button
-                    key={m.value}
-                    whileHover={{ scale: 1.07 }}
-                    whileTap={{ scale: 0.93 }}
-                    onClick={() => setMood(m.value)}
-                    className="flex flex-col items-center gap-1.5 rounded-2xl py-3 text-[11px]"
-                    style={{
-                      background: active ? "var(--tdp-primary-soft)" : "var(--tdp-bg)",
-                      color: "var(--tdp-text)",
-                    }}
-                  >
-                    <m.Icon className="size-6" style={{ color: "var(--tdp-primary-ink)" }} />
-                    {m.label}
-                  </motion.button>
-                )
-              })}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm" style={{ color: "var(--tdp-text)" }}>{kitabTerdekat.nama}</p>
+                  <p className="text-xs" style={{ color: "var(--tdp-muted)" }}>{kitabTerdekat.mataKuliah}</p>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-xl" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
+                    {sisaHari(kitabTerdekat.tanggalUjian)}
+                  </p>
+                  <p className="text-[10px]" style={{ color: "var(--tdp-muted)" }}>hari lagi</p>
+                </div>
+              </div>
+
+              <div className="mt-3 h-2 w-full overflow-hidden rounded-full" style={{ background: "var(--tdp-bg)" }}>
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${persenKitab(kitabTerdekat)}%` }}
+                  className="h-full rounded-full"
+                  style={{ background: "var(--tdp-primary)" }}
+                />
+              </div>
+
+              <p className="mt-2 text-xs" style={{ color: "var(--tdp-muted)" }}>
+                {kitabTerdekat.halamanDibaca} dari {kitabTerdekat.totalHalaman} halaman
+                {halamanPerHari(kitabTerdekat) !== null && ` · perlu ${halamanPerHari(kitabTerdekat)} halaman per hari`}
+              </p>
             </div>
-
-            <p className="mt-3 text-center text-[11px]" style={{ color: "var(--tdp-muted)" }}>
-              {mood ? "Mood tersimpan untuk hari ini" : "Belum diisi hari ini"}
-            </p>
-          </motion.section>
-
-          <motion.section
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="p-5 text-center"
-            style={{ ...card, background: "var(--tdp-primary-soft)" }}
-          >
-            <Quote className="mx-auto size-5" style={{ color: "var(--tdp-primary-ink)" }} />
-            <p className="mt-2 text-sm italic" style={{ color: "var(--tdp-text)" }}>
-              {quote}
-            </p>
-          </motion.section>
-        </div>
+          )}
+        </section>
       </div>
     </div>
   )

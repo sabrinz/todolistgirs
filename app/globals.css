@@ -144,7 +144,11 @@
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--tdp-bg);
+  color: var(--tdp-text);
   font-family: var(--font-quicksand), system-ui, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }

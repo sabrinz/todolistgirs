@@ -4,22 +4,17 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import {
-  BarChart3, CalendarDays, Crown, Gift, Home, ListTodo,
-  NotebookPen, Settings, Smile, Sun,
+  BarChart3, BookOpen, CalendarDays, Clock, Feather, Home, Languages,
+  Library, Moon, NotebookPen, Repeat, Settings, Smile, Sparkles,
 } from "lucide-react"
 import { NAV } from "@/config/nav"
 import { BunnyMascot } from "@/components/decor/mascot"
 
 const ICONS = {
-  home: Home,
-  sun: Sun,
-  calendar: CalendarDays,
-  list: ListTodo,
-  notebook: NotebookPen,
-  smile: Smile,
-  chart: BarChart3,
-  gift: Gift,
-  settings: Settings,
+  home: Home, book: BookOpen, repeat: Repeat, library: Library,
+  languages: Languages, moon: Moon, clock: Clock, calendar: CalendarDays,
+  feather: Feather, notebook: NotebookPen, smile: Smile,
+  chart: BarChart3, settings: Settings,
 } as const
 
 export function Sidebar() {
@@ -27,34 +22,30 @@ export function Sidebar() {
 
   return (
     <aside
-      className="hidden w-64 shrink-0 flex-col gap-6 p-5 md:flex"
+      className="hidden w-60 shrink-0 flex-col gap-4 overflow-y-auto p-4 md:flex"
       style={{ background: "var(--tdp-sidebar)", borderRight: "1px solid var(--tdp-border)" }}
     >
-      {/* Logo */}
       <div className="flex items-center gap-2.5">
         <motion.span
           animate={{ rotate: [0, -8, 8, 0] }}
           transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-          className="flex size-10 items-center justify-center rounded-2xl"
+          className="flex size-10 shrink-0 items-center justify-center rounded-2xl"
           style={{ background: "var(--tdp-primary)" }}
         >
-          <Crown className="size-5 text-white" />
+          <Sparkles className="size-5 text-white" />
         </motion.span>
-        <div>
-          <p
-            className="text-lg leading-tight"
-            style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-          >
-            To-Do Princess
+
+        <div className="min-w-0">
+          <p className="text-lg leading-tight" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
+            Rihlah
           </p>
-          <p className="text-[11px]" style={{ color: "var(--tdp-muted)" }}>
-            Buat harimu lebih produktif
+          <p className="truncate text-[10px]" style={{ color: "var(--tdp-muted)" }}>
+            Teman menuntut ilmu
           </p>
         </div>
       </div>
 
-      {/* Menu */}
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-0.5">
         {NAV.map((item) => {
           const Icon = ICONS[item.icon as keyof typeof ICONS]
           const active = pathname === item.href
@@ -74,26 +65,25 @@ export function Sidebar() {
                   style={{ background: "var(--tdp-primary)", boxShadow: "var(--tdp-shadow)" }}
                 />
               )}
-              <Icon className="relative z-10 size-4.5" />
+              {Icon && <Icon className="relative z-10 size-4 shrink-0" />}
               <span className="relative z-10">{item.label}</span>
             </Link>
           )
         })}
       </nav>
 
-      {/* Kartu penyemangat */}
       <div
-        className="mt-auto rounded-3xl p-4 pt-2 text-center"
-        style={{ background: "var(--tdp-card)", boxShadow: "var(--tdp-shadow)" }}
+        className="mt-auto shrink-0 rounded-3xl p-3 pt-1 text-center"
+        style={{ background: "var(--tdp-card)", boxShadow: "var(--tdp-shadow-soft)" }}
       >
         <div className="flex justify-center">
-          <BunnyMascot size={84} />
+          <BunnyMascot size={70} />
         </div>
-        <p
-          className="mt-1 text-xs"
-          style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-        >
-          You can do it, girl!
+        <p className="text-[11px]" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}>
+          Semoga Allah mudahkan
+        </p>
+        <p className="text-[9px]" style={{ color: "var(--tdp-muted)" }}>
+          Sedikit tapi terus-menerus
         </p>
       </div>
     </aside>

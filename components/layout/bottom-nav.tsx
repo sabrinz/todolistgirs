@@ -2,58 +2,52 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, ListTodo, Plus, Smile, BarChart3 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+import { BookOpen, Home, Library, Moon, Repeat } from "lucide-react"
 
-const LEFT = [
+const ITEMS = [
   { label: "Beranda", href: "/beranda", Icon: Home },
-  { label: "Tugas", href: "/tugas", Icon: ListTodo },
-]
-
-const RIGHT = [
-  { label: "Mood", href: "/mood", Icon: Smile },
-  { label: "Statistik", href: "/statistik", Icon: BarChart3 },
+  { label: "Hafalan", href: "/hafalan", Icon: BookOpen },
+  { label: "Murojaah", href: "/murojaah", Icon: Repeat },
+  { label: "Muqorror", href: "/muqorror", Icon: Library },
+  { label: "Amalan", href: "/amalan", Icon: Moon },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
 
-  const item = (i: { label: string; href: string; Icon: typeof Home }) => {
-    const active = pathname === i.href || pathname.startsWith(i.href + "/")
-    return (
-      <Link
-        key={i.href}
-        href={i.href}
-        className="flex flex-1 flex-col items-center gap-1 py-2 text-[11px]"
-        style={{ color: active ? "var(--primary-ink)" : "var(--muted)" }}
-      >
-        <i.Icon className={cn("size-5", active && "scale-110")} />
-        {i.label}
-      </Link>
-    )
-  }
-
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 flex items-end border-t px-2 pb-1 md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-2 md:hidden"
       style={{
-        background: "var(--card)",
-        borderColor: "var(--border)",
-        boxShadow: "var(--shadow-soft)",
+        background: "var(--tdp-card)",
+        borderTop: "1px solid var(--tdp-border)",
+        boxShadow: "0 -6px 20px rgba(255,111,165,0.10)",
       }}
     >
-      {LEFT.map(item)}
+      {ITEMS.map((it) => {
+        const active = pathname === it.href
 
-      <Link
-        href="/tugas"
-        aria-label="Tambah tugas"
-        className="mx-1 -mt-6 flex size-14 shrink-0 items-center justify-center rounded-full text-white"
-        style={{ background: "var(--primary)", boxShadow: "var(--shadow-soft)" }}
-      >
-        <Plus className="size-7" />
-      </Link>
-
-      {RIGHT.map(item)}
+        return (
+          <Link
+            key={it.href}
+            href={it.href}
+            className="relative flex flex-1 flex-col items-center gap-1 py-1 text-[10px]"
+            style={{ color: active ? "var(--tdp-primary-ink)" : "var(--tdp-muted)" }}
+          >
+            {active && (
+              <motion.span
+                layoutId="bottom-pill"
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                className="absolute -top-1 h-1 w-8 rounded-full"
+                style={{ background: "var(--tdp-primary)" }}
+              />
+            )}
+            <it.Icon className="size-5" />
+            {it.label}
+          </Link>
+        )
+      })}
     </nav>
   )
 }

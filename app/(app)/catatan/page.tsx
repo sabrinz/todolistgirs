@@ -2,275 +2,175 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Frown, NotebookPen, Pencil, Plus, Search, Smile, Meh, Trash2, X } from "lucide-react"
-import { useNoteStore, type NoteMood } from "@/store/note-store"
-
-const MOODS: { value: NoteMood; label: string; Icon: typeof Smile; color: string }[] = [
-  { value: "senang", label: "Senang", Icon: Smile, color: "var(--tdp-mint)" },
-  { value: "biasa", label: "Biasa", Icon: Meh, color: "var(--tdp-lemon)" },
-  { value: "sedih", label: "Sedih", Icon: Frown, color: "var(--tdp-lilac)" },
-]
+import { NotebookPen, Pencil, Plus, Search, Trash2 } from "lucide-react"
+import { mataKuliahUnik, useNoteStore } from "@/store/note-store"
 
 const card = {
   background: "var(--tdp-card)",
   borderRadius: "var(--tdp-radius)",
-  boxShadow: "var(--tdp-shadow)",
+  boxShadow: "var(--tdp-shadow-soft)",
+}
+
+const kolom = {
+  background: "var(--tdp-bg)",
+  borderRadius: "var(--tdp-radius-sm)",
+  color: "var(--tdp-text)",
 }
 
 export default function CatatanPage() {
   const [mounted, setMounted] = useState(false)
-  const [q, setQ] = useState("")
-  const [open, setOpen] = useState(false)
-  const [editing, setEditing] = useState<string | null>(null)
-  const [title, setTitle] = useState("")
-  const [body, setBody] = useState("")
-  const [mood, setMood] = useState<NoteMood>("senang")
-
-  const { notes, addNote, updateNote, removeNote } = useNoteStore()
-
   useEffect(() => setMounted(true), [])
 
-  const visible = useMemo(() => {
-    if (!q.trim()) return notes
-    const needle = q.toLowerCase()
-    return notes.filter(
-      (n) => n.title.toLowerCase().includes(needle) || n.body.toLowerCase().includes(needle)
-    )
-  }, [notes, q])
+  const { notes, tambah, ubah, hapus } = useNoteStore()
 
-  if (!mounted) return null
+  const [buka, setBuka] = useState(false)
+  const [sedangDiubah, setSedangDiubah] = useState<string | null>(null)
+  const [judul, setJudul] = useState("")
+  const [isi, setIsi] = useState("")
+  const [mata, setMata] = useState("")
+  const [cari, setCari] = useState("")
+  const [saring, setSaring] = useState("semua")
 
-  const reset = () => {
-    setTitle("")
-    setBody("")
-    setMood("senang")
-    setEditing(null)
-    setOpen(false)
+  const daftarMata = useMemo(() => mataKuliahUnik(notes), [notes])
+
+  const tampil = useMemo(() => {
+    const kata = cari.trim().toLowerCase()
+
+    return notes
+      .filter((n) => (saring === "semua" ? true : n.mataKuliah === saring))
+      .filter((n) =>
+        kata === "" ? true : `${n.judul} ${n.isi} ${n.mataKuliah}`.toLowerCase().includes(kata)
+      )
+  }, [notes, cari, saring])
+
+  function reset() {
+    setJudul(""); setIsi(""); setMata("")
+    setSedangDiubah(null); setBuka(false)
   }
 
-  const submit = (e: React.FormEvent) => {
+  function simpan(e: React.FormEvent) {
     e.preventDefault()
-    if (!title.trim() && !body.trim()) return
-    if (editing) updateNote(editing, { title, body, mood })
-    else addNote({ title, body, mood })
+    if (!judul.trim() && !isi.trim()) return
+
+    const data = {
+      judul: judul.trim() || "Tanpa judul",
+      isi: isi.trim(),
+      mataKuliah: mata.trim() || "Umum",
+    }
+
+    if (sedangDiubah) ubah(sedangDiubah, data)
+    else tambah(data)
+
     reset()
   }
 
-  const startEdit = (id: string) => {
-    const n = notes.find((x) => x.id === id)
-    if (!n) return
-    setEditing(id)
-    setTitle(n.title)
-    setBody(n.body)
-    setMood(n.mood)
-    setOpen(true)
-  }
+  if (!mounted) return null
 
   return (
-    <div className="space-y-5">
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap items-center gap-3"
+    <div className="mx-auto flex max-w-4xl flex-col gap-4">
+      <section
+        className="relative overflow-hidden p-5"
+        style={{ background: "var(--tdp-gradient)", borderRadius: "var(--tdp-radius)" }}
       >
-        <div className="flex-1">
-          <h1
-            className="text-3xl md:text-4xl"
-            style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-          >
-            Catatan & Diary
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--tdp-muted)" }}>
-            {notes.length} catatan tersimpan
+        <div className="absolute -right-10 -top-12 size-40 rounded-full opacity-20" style={{ background: "#fff" }} />
+
+        <div className="relative">
+          <h1 className="text-2xl text-white" style={{ fontFamily: "var(--font-baloo)" }}>Catatan</h1>
+          <p className="text-sm text-white/85">
+            {notes.length} catatan · {daftarMata.length} mata kuliah
           </p>
         </div>
+      </section>
 
-        <motion.button
-          whileTap={{ scale: 0.94 }}
-          onClick={() => (open ? reset() : setOpen(true))}
-          className="flex items-center gap-1.5 rounded-full px-5 py-2.5 text-xs text-white"
-          style={{ background: "var(--tdp-primary)", boxShadow: "var(--tdp-shadow)" }}
-        >
-          <motion.span animate={{ rotate: open ? 45 : 0 }}>
-            <Plus className="size-4" />
-          </motion.span>
-          {open ? "Tutup" : "Tulis Catatan"}
-        </motion.button>
-      </motion.div>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <label className="flex flex-1 items-center gap-2 px-3 py-2.5" style={kolom}>
+          <Search className="size-4" style={{ color: "var(--tdp-muted)" }} />
+          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari catatan"
+            className="w-full bg-transparent text-sm outline-none" />
+        </label>
 
-      {/* Formulir */}
+        <select value={saring} onChange={(e) => setSaring(e.target.value)}
+          className="px-3 py-2.5 text-sm outline-none" style={kolom}>
+          <option value="semua">Semua mata kuliah</option>
+          {daftarMata.map((m) => <option key={m} value={m}>{m}</option>)}
+        </select>
+      </div>
+
+      <button onClick={() => (buka ? reset() : setBuka(true))}
+        className="flex items-center justify-center gap-2 py-3 text-sm text-white"
+        style={{ background: "var(--tdp-primary)", borderRadius: "var(--tdp-radius)", boxShadow: "var(--tdp-shadow)" }}>
+        <Plus className="size-4" /> {buka ? "Tutup" : "Catatan baru"}
+      </button>
+
       <AnimatePresence>
-        {open && (
-          <motion.form
-            onSubmit={submit}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="space-y-3 p-5" style={card}>
-              <input
-                autoFocus
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Judul catatan..."
-                className="w-full bg-transparent text-xl outline-none"
-                style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-              />
+        {buka && (
+          <motion.form onSubmit={simpan}
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="flex flex-col gap-3 overflow-hidden p-4" style={card}>
+            <input value={judul} onChange={(e) => setJudul(e.target.value)} placeholder="Judul catatan"
+              className="px-3 py-2.5 text-sm outline-none" style={kolom} />
 
-              <textarea
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                rows={5}
-                placeholder="Tulis apa pun yang kamu rasakan hari ini..."
-                className="w-full resize-none rounded-2xl p-3 text-sm outline-none"
-                style={{ background: "var(--tdp-bg)", color: "var(--tdp-text)" }}
-              />
+            <input value={mata} onChange={(e) => setMata(e.target.value)} placeholder="Mata kuliah"
+              className="px-3 py-2.5 text-sm outline-none" style={kolom} list="mata-kuliah" />
 
-              <div className="flex flex-wrap items-center gap-2">
-                {MOODS.map((m) => (
-                  <button
-                    type="button"
-                    key={m.value}
-                    onClick={() => setMood(m.value)}
-                    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] transition-transform hover:scale-105"
-                    style={{
-                      background: mood === m.value ? m.color : "var(--tdp-bg)",
-                      color: "var(--tdp-text)",
-                    }}
-                  >
-                    <m.Icon className="size-3.5" />
-                    {m.label}
-                  </button>
-                ))}
+            <datalist id="mata-kuliah">
+              {daftarMata.map((m) => <option key={m} value={m} />)}
+            </datalist>
 
-                <button
-                  type="submit"
-                  className="ml-auto rounded-full px-5 py-2 text-xs text-white"
-                  style={{ background: "var(--tdp-primary)" }}
-                >
-                  {editing ? "Perbarui" : "Simpan Catatan"}
-                </button>
-              </div>
-            </div>
+            <textarea value={isi} onChange={(e) => setIsi(e.target.value)} rows={8}
+              placeholder="Isi catatan. Boleh campur Arab dan Indonesia."
+              className="resize-none px-3 py-2.5 text-sm outline-none" style={kolom} />
+
+            <button type="submit" className="py-3 text-sm text-white"
+              style={{ background: "var(--tdp-primary)", borderRadius: "var(--tdp-radius-sm)" }}>
+              {sedangDiubah ? "Simpan perubahan" : "Simpan catatan"}
+            </button>
           </motion.form>
         )}
       </AnimatePresence>
 
-      {/* Pencarian */}
-      <div
-        className="flex items-center gap-2 rounded-full px-4 py-2.5"
-        style={{ background: "var(--tdp-card)", boxShadow: "var(--tdp-shadow)" }}
-      >
-        <Search className="size-4" style={{ color: "var(--tdp-muted)" }} />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari catatan..."
-          className="flex-1 bg-transparent text-sm outline-none"
-          style={{ color: "var(--tdp-text)" }}
-        />
-        {q && (
-          <button onClick={() => setQ("")} aria-label="Hapus pencarian">
-            <X className="size-4" style={{ color: "var(--tdp-muted)" }} />
-          </button>
-        )}
-      </div>
+      {tampil.length === 0 ? (
+        <div className="p-10 text-center text-sm" style={{ ...card, color: "var(--tdp-muted)" }}>
+          {notes.length === 0 ? "Belum ada catatan." : "Tidak ada catatan yang cocok."}
+        </div>
+      ) : (
+        <section className="grid gap-2 sm:grid-cols-2">
+          {tampil.map((n) => (
+            <motion.article key={n.id} layout className="p-4" style={card}>
+              <div className="flex items-start gap-2">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl"
+                  style={{ background: "var(--tdp-sky-soft)" }}>
+                  <NotebookPen className="size-4" style={{ color: "var(--tdp-primary-ink)" }} />
+                </span>
 
-      {/* Daftar catatan */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence initial={false}>
-          {visible.map((n) => {
-            const m = MOODS.find((x) => x.value === n.mood)!
-            return (
-              <motion.article
-                key={n.id}
-                layout
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.92 }}
-                whileHover={{ y: -5 }}
-                className="group flex flex-col p-5"
-                style={{ ...card, borderTop: `6px solid ${m.color}` }}
-              >
-                <div className="flex items-start gap-2">
-                  <p
-                    className="flex-1 text-lg leading-tight"
-                    style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-primary-ink)" }}
-                  >
-                    {n.title}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm" style={{ fontFamily: "var(--font-baloo)", color: "var(--tdp-text)" }}>{n.judul}</p>
+                  <p className="text-[10px]" style={{ color: "var(--tdp-muted)" }}>
+                    {n.mataKuliah} · {new Date(n.updatedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long" })}
                   </p>
-                  <span
-                    className="flex size-7 shrink-0 items-center justify-center rounded-full"
-                    style={{ background: m.color }}
-                  >
-                    <m.Icon className="size-3.5" style={{ color: "var(--tdp-text)" }} />
-                  </span>
                 </div>
 
-                <p
-                  className="mt-2 line-clamp-4 flex-1 whitespace-pre-wrap text-sm"
-                  style={{ color: "var(--tdp-text)" }}
+                <button
+                  onClick={() => {
+                    setSedangDiubah(n.id); setJudul(n.judul); setIsi(n.isi); setMata(n.mataKuliah); setBuka(true)
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }}
+                  aria-label="Ubah catatan"
                 >
-                  {n.body}
-                </p>
+                  <Pencil className="size-3.5" style={{ color: "var(--tdp-muted)" }} />
+                </button>
 
-                <div className="mt-4 flex items-center gap-2">
-                  <span className="text-[11px]" style={{ color: "var(--tdp-muted)" }}>
-                    {new Date(n.updatedAt).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
+                <button onClick={() => hapus(n.id)} aria-label="Hapus catatan">
+                  <Trash2 className="size-3.5" style={{ color: "var(--tdp-muted)" }} />
+                </button>
+              </div>
 
-                  <div className="ml-auto flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      onClick={() => startEdit(n.id)}
-                      aria-label="Ubah catatan"
-                      className="flex size-7 items-center justify-center rounded-full"
-                      style={{ background: "var(--tdp-bg)" }}
-                    >
-                      <Pencil className="size-3.5" style={{ color: "var(--tdp-primary-ink)" }} />
-                    </motion.button>
-
-                    <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      onClick={() => removeNote(n.id)}
-                      aria-label="Hapus catatan"
-                      className="flex size-7 items-center justify-center rounded-full"
-                      style={{ background: "var(--tdp-bg)" }}
-                    >
-                      <Trash2 className="size-3.5" style={{ color: "var(--tdp-muted)" }} />
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.article>
-            )
-          })}
-        </AnimatePresence>
-      </div>
-
-      {visible.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center gap-2 py-16 text-center"
-          style={card}
-        >
-          <span
-            className="flex size-14 items-center justify-center rounded-full"
-            style={{ background: "var(--tdp-bg)" }}
-          >
-            <NotebookPen className="size-6" style={{ color: "var(--tdp-primary)" }} />
-          </span>
-          <p className="text-sm" style={{ color: "var(--tdp-muted)" }}>
-            {notes.length === 0
-              ? "Belum ada catatan. Tulis yang pertama yuk!"
-              : "Tidak ada catatan yang cocok"}
-          </p>
-        </motion.div>
+              {n.isi && (
+                <p className="mt-2 line-clamp-6 whitespace-pre-wrap text-sm" style={{ color: "var(--tdp-text)" }}>{n.isi}</p>
+              )}
+            </motion.article>
+          ))}
+        </section>
       )}
     </div>
   )

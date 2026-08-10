@@ -1,4 +1,39 @@
-[data-theme="pink"]   { --tdp-primary:#FF6FA5; --tdp-primary-soft:#FFC2DA; --tdp-primary-ink:#E2467E; --tdp-bg:#FFF6FA; --tdp-sidebar:#FFF0F6; }
-[data-theme="purple"] { --tdp-primary:#A97BE6; --tdp-primary-soft:#DCC8F7; --tdp-primary-ink:#7B4FC0; --tdp-bg:#F8F4FF; --tdp-sidebar:#F2EAFF; }
-[data-theme="matcha"] { --tdp-primary:#7CC79B; --tdp-primary-soft:#CDEBD8; --tdp-primary-ink:#4E9A70; --tdp-bg:#F4FBF6; --tdp-sidebar:#EAF7EE; }
-[data-theme="blue"]   { --tdp-primary:#6FB6EE; --tdp-primary-soft:#C6E4FA; --tdp-primary-ink:#3D8DC9; --tdp-bg:#F4FAFF; --tdp-sidebar:#E9F5FF; }
+[data-theme="pink"] {
+  --tdp-primary: #FF6FA5; --tdp-primary-soft: #FFC2DA; --tdp-primary-ink: #E2467E;
+  --tdp-bg: #FFF6FA; --tdp-sidebar: #FFF0F6; --tdp-border: #FFE0EC;
+}
+
+[data-theme="purple"] {
+  --tdp-primary: #A97BE6; --tdp-primary-soft: #DCC8F7; --tdp-primary-ink: #7B4FC0;
+  --tdp-bg: #F8F4FF; --tdp-sidebar: #F2EAFF; --tdp-border: #E8DCFB;
+}
+
+[data-theme="matcha"] {
+  --tdp-primary: #7CC79B; --tdp-primary-soft: #CDEBD8; --tdp-primary-ink: #4E9A70;
+  --tdp-bg: #F4FBF6; --tdp-sidebar: #EAF7EE; --tdp-border: #DCEFE3;
+}
+
+[data-theme="blue"] {
+  --tdp-primary: #6FB6EE; --tdp-primary-soft: #C6E4FA; --tdp-primary-ink: #3D8DC9;
+  --tdp-bg: #F4FAFF; --tdp-sidebar: #E9F5FF; --tdp-border: #D8EBFA;
+}
+
+[data-theme="strawberry"] {
+  --tdp-primary: #F2607A; --tdp-primary-soft: #FCC9D2; --tdp-primary-ink: #C93E58;
+  --tdp-bg: #FFF5F6; --tdp-sidebar: #FFECEF; --tdp-border: #FBDDE2;
+}
+
+[data-theme="lavender"] {
+  --tdp-primary: #9C8BD8; --tdp-primary-soft: #D8D0F2; --tdp-primary-ink: #6E5CB0;
+  --tdp-bg: #F7F6FF; --tdp-sidebar: #EFEDFF; --tdp-border: #E2DEF7;
+}
+
+[data-theme="chocolate"] {
+  --tdp-primary: #B08968; --tdp-primary-soft: #E7D5C3; --tdp-primary-ink: #855E3F;
+  --tdp-bg: #FBF7F3; --tdp-sidebar: #F5EDE5; --tdp-border: #EBDFD3;
+}
+
+[data-theme="minimalist"] {
+  --tdp-primary: #6B7280; --tdp-primary-soft: #E5E7EB; --tdp-primary-ink: #374151;
+  --tdp-bg: #FAFAFA; --tdp-sidebar: #F4F4F5; --tdp-border: #E4E4E7;
+}

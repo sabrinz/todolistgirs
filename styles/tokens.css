@@ -2,16 +2,29 @@
   --tdp-bg: #FFF6FA;
   --tdp-card: #FFFFFF;
   --tdp-sidebar: #FFF0F6;
+
   --tdp-primary: #FF6FA5;
   --tdp-primary-soft: #FFC2DA;
   --tdp-primary-ink: #E2467E;
+
   --tdp-mint: #8FE0BE;
   --tdp-lilac: #C9A7F5;
   --tdp-lemon: #FFE08A;
   --tdp-sky: #A6D8FF;
+
+  --tdp-mint-soft: #E6F8F0;
+  --tdp-lilac-soft: #F1E9FE;
+  --tdp-lemon-soft: #FFF6DF;
+  --tdp-sky-soft: #E7F4FF;
+
   --tdp-text: #5A4650;
   --tdp-muted: #A98A97;
   --tdp-border: #FFE0EC;
-  --tdp-radius: 24px;
-  --tdp-shadow: 0 8px 24px rgba(255, 111, 165, 0.15);
+
+  --tdp-radius: 28px;
+  --tdp-radius-sm: 18px;
+
+  --tdp-shadow: 0 10px 30px rgba(255, 111, 165, 0.13);
+  --tdp-shadow-soft: 0 4px 14px rgba(255, 111, 165, 0.08);
+  --tdp-gradient: linear-gradient(135deg, var(--tdp-primary-soft) 0%, var(--tdp-lilac) 100%);
 }

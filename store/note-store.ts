@@ -1,63 +1,53 @@
-"use client"
-
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-export type NoteMood = "senang" | "biasa" | "sedih"
-
 export type Note = {
   id: string
-  title: string
-  body: string
-  mood: NoteMood
+  judul: string
+  isi: string
+  mataKuliah: string
   createdAt: string
   updatedAt: string
 }
 
-type Store = {
+type State = {
   notes: Note[]
-  addNote: (input: { title: string; body: string; mood: NoteMood }) => void
-  updateNote: (id: string, input: { title: string; body: string; mood: NoteMood }) => void
-  removeNote: (id: string) => void
+  tambah: (n: { judul: string; isi: string; mataKuliah: string }) => void
+  ubah: (id: string, n: { judul: string; isi: string; mataKuliah: string }) => void
+  hapus: (id: string) => void
 }
 
-export const useNoteStore = create<Store>()(
+export const useNoteStore = create<State>()(
   persist(
     (set) => ({
       notes: [],
 
-      addNote: ({ title, body, mood }) =>
-        set((s) => ({
+      tambah: (n) =>
+        set((st) => ({
           notes: [
             {
+              ...n,
               id: crypto.randomUUID(),
-              title: title.trim() || "Tanpa judul",
-              body: body.trim(),
-              mood,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             },
-            ...s.notes,
+            ...st.notes,
           ],
         })),
 
-      updateNote: (id, { title, body, mood }) =>
-        set((s) => ({
-          notes: s.notes.map((n) =>
-            n.id === id
-              ? {
-                  ...n,
-                  title: title.trim() || "Tanpa judul",
-                  body: body.trim(),
-                  mood,
-                  updatedAt: new Date().toISOString(),
-                }
-              : n
+      ubah: (id, n) =>
+        set((st) => ({
+          notes: st.notes.map((x) =>
+            x.id === id ? { ...x, ...n, updatedAt: new Date().toISOString() } : x
           ),
         })),
 
-      removeNote: (id) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id) })),
+      hapus: (id) => set((st) => ({ notes: st.notes.filter((x) => x.id !== id) })),
     }),
-    { name: "tdp-notes" }
+    { name: "rihlah-notes" }
   )
 )
+
+export function mataKuliahUnik(notes: Note[]) {
+  return [...new Set(notes.map((n) => n.mataKuliah))].filter(Boolean).sort()
+}

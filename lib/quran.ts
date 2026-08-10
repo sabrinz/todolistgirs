@@ -1,0 +1,70 @@
+export type Surah = { n: number; nama: string; ayat: number }
+
+export const SURAH: Surah[] = [
+  { n: 1, nama: "Al-Fatihah", ayat: 7 }, { n: 2, nama: "Al-Baqarah", ayat: 286 },
+  { n: 3, nama: "Ali 'Imran", ayat: 200 }, { n: 4, nama: "An-Nisa'", ayat: 176 },
+  { n: 5, nama: "Al-Ma'idah", ayat: 120 }, { n: 6, nama: "Al-An'am", ayat: 165 },
+  { n: 7, nama: "Al-A'raf", ayat: 206 }, { n: 8, nama: "Al-Anfal", ayat: 75 },
+  { n: 9, nama: "At-Taubah", ayat: 129 }, { n: 10, nama: "Yunus", ayat: 109 },
+  { n: 11, nama: "Hud", ayat: 123 }, { n: 12, nama: "Yusuf", ayat: 111 },
+  { n: 13, nama: "Ar-Ra'd", ayat: 43 }, { n: 14, nama: "Ibrahim", ayat: 52 },
+  { n: 15, nama: "Al-Hijr", ayat: 99 }, { n: 16, nama: "An-Nahl", ayat: 128 },
+  { n: 17, nama: "Al-Isra'", ayat: 111 }, { n: 18, nama: "Al-Kahf", ayat: 110 },
+  { n: 19, nama: "Maryam", ayat: 98 }, { n: 20, nama: "Taha", ayat: 135 },
+  { n: 21, nama: "Al-Anbiya'", ayat: 112 }, { n: 22, nama: "Al-Hajj", ayat: 78 },
+  { n: 23, nama: "Al-Mu'minun", ayat: 118 }, { n: 24, nama: "An-Nur", ayat: 64 },
+  { n: 25, nama: "Al-Furqan", ayat: 77 }, { n: 26, nama: "Asy-Syu'ara'", ayat: 227 },
+  { n: 27, nama: "An-Naml", ayat: 93 }, { n: 28, nama: "Al-Qasas", ayat: 88 },
+  { n: 29, nama: "Al-'Ankabut", ayat: 69 }, { n: 30, nama: "Ar-Rum", ayat: 60 },
+  { n: 31, nama: "Luqman", ayat: 34 }, { n: 32, nama: "As-Sajdah", ayat: 30 },
+  { n: 33, nama: "Al-Ahzab", ayat: 73 }, { n: 34, nama: "Saba'", ayat: 54 },
+  { n: 35, nama: "Fatir", ayat: 45 }, { n: 36, nama: "Yasin", ayat: 83 },
+  { n: 37, nama: "As-Saffat", ayat: 182 }, { n: 38, nama: "Sad", ayat: 88 },
+  { n: 39, nama: "Az-Zumar", ayat: 75 }, { n: 40, nama: "Gafir", ayat: 85 },
+  { n: 41, nama: "Fussilat", ayat: 54 }, { n: 42, nama: "Asy-Syura", ayat: 53 },
+  { n: 43, nama: "Az-Zukhruf", ayat: 89 }, { n: 44, nama: "Ad-Dukhan", ayat: 59 },
+  { n: 45, nama: "Al-Jasiyah", ayat: 37 }, { n: 46, nama: "Al-Ahqaf", ayat: 35 },
+  { n: 47, nama: "Muhammad", ayat: 38 }, { n: 48, nama: "Al-Fath", ayat: 29 },
+  { n: 49, nama: "Al-Hujurat", ayat: 18 }, { n: 50, nama: "Qaf", ayat: 45 },
+  { n: 51, nama: "Az-Zariyat", ayat: 60 }, { n: 52, nama: "At-Tur", ayat: 49 },
+  { n: 53, nama: "An-Najm", ayat: 62 }, { n: 54, nama: "Al-Qamar", ayat: 55 },
+  { n: 55, nama: "Ar-Rahman", ayat: 78 }, { n: 56, nama: "Al-Waqi'ah", ayat: 96 },
+  { n: 57, nama: "Al-Hadid", ayat: 29 }, { n: 58, nama: "Al-Mujadilah", ayat: 22 },
+  { n: 59, nama: "Al-Hasyr", ayat: 24 }, { n: 60, nama: "Al-Mumtahanah", ayat: 13 },
+  { n: 61, nama: "As-Saff", ayat: 14 }, { n: 62, nama: "Al-Jumu'ah", ayat: 11 },
+  { n: 63, nama: "Al-Munafiqun", ayat: 11 }, { n: 64, nama: "At-Tagabun", ayat: 18 },
+  { n: 65, nama: "At-Talaq", ayat: 12 }, { n: 66, nama: "At-Tahrim", ayat: 12 },
+  { n: 67, nama: "Al-Mulk", ayat: 30 }, { n: 68, nama: "Al-Qalam", ayat: 52 },
+  { n: 69, nama: "Al-Haqqah", ayat: 52 }, { n: 70, nama: "Al-Ma'arij", ayat: 44 },
+  { n: 71, nama: "Nuh", ayat: 28 }, { n: 72, nama: "Al-Jinn", ayat: 28 },
+  { n: 73, nama: "Al-Muzzammil", ayat: 20 }, { n: 74, nama: "Al-Muddassir", ayat: 56 },
+  { n: 75, nama: "Al-Qiyamah", ayat: 40 }, { n: 76, nama: "Al-Insan", ayat: 31 },
+  { n: 77, nama: "Al-Mursalat", ayat: 50 }, { n: 78, nama: "An-Naba'", ayat: 40 },
+  { n: 79, nama: "An-Nazi'at", ayat: 46 }, { n: 80, nama: "'Abasa", ayat: 42 },
+  { n: 81, nama: "At-Takwir", ayat: 29 }, { n: 82, nama: "Al-Infitar", ayat: 19 },
+  { n: 83, nama: "Al-Mutaffifin", ayat: 36 }, { n: 84, nama: "Al-Insyiqaq", ayat: 25 },
+  { n: 85, nama: "Al-Buruj", ayat: 22 }, { n: 86, nama: "At-Tariq", ayat: 17 },
+  { n: 87, nama: "Al-A'la", ayat: 19 }, { n: 88, nama: "Al-Gasyiyah", ayat: 26 },
+  { n: 89, nama: "Al-Fajr", ayat: 30 }, { n: 90, nama: "Al-Balad", ayat: 20 },
+  { n: 91, nama: "Asy-Syams", ayat: 15 }, { n: 92, nama: "Al-Lail", ayat: 21 },
+  { n: 93, nama: "Ad-Duha", ayat: 11 }, { n: 94, nama: "Asy-Syarh", ayat: 8 },
+  { n: 95, nama: "At-Tin", ayat: 8 }, { n: 96, nama: "Al-'Alaq", ayat: 19 },
+  { n: 97, nama: "Al-Qadr", ayat: 5 }, { n: 98, nama: "Al-Bayyinah", ayat: 8 },
+  { n: 99, nama: "Az-Zalzalah", ayat: 8 }, { n: 100, nama: "Al-'Adiyat", ayat: 11 },
+  { n: 101, nama: "Al-Qari'ah", ayat: 11 }, { n: 102, nama: "At-Takasur", ayat: 8 },
+  { n: 103, nama: "Al-'Asr", ayat: 3 }, { n: 104, nama: "Al-Humazah", ayat: 9 },
+  { n: 105, nama: "Al-Fil", ayat: 5 }, { n: 106, nama: "Quraisy", ayat: 4 },
+  { n: 107, nama: "Al-Ma'un", ayat: 7 }, { n: 108, nama: "Al-Kausar", ayat: 3 },
+  { n: 109, nama: "Al-Kafirun", ayat: 6 }, { n: 110, nama: "An-Nasr", ayat: 3 },
+  { n: 111, nama: "Al-Lahab", ayat: 5 }, { n: 112, nama: "Al-Ikhlas", ayat: 4 },
+  { n: 113, nama: "Al-Falaq", ayat: 5 }, { n: 114, nama: "An-Nas", ayat: 6 },
+]
+
+/** Total seluruh ayat Al-Qur'an: 6236 */
+export const TOTAL_AYAT = SURAH.reduce((a, s) => a + s.ayat, 0)
+
+export const JUZ = Array.from({ length: 30 }, (_, i) => i + 1)
+
+export function cariSurah(n: number) {
+  return SURAH.find((s) => s.n === n)
+}
